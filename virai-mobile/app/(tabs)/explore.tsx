@@ -13,8 +13,8 @@ import NetInfo from '@react-native-community/netinfo';
 
 const { width } = Dimensions.get('window');
 const COLUMN_WIDTH = width * 0.8; 
-const API_URL_COACH = 'http://192.168.1.103:8000/coach-me'; 
-const API_URL_DECOMPOSE = 'http://192.168.1.103:8000/decompose-task';
+const API_URL_COACH = 'https://viraflow.onrender.com/coach-me';
+const API_URL_DECOMPOSE = 'https://viraflow.onrender.com/decompose-task';
 
 // --- KART BİLEŞENİ ---
 const DraggableCard = ({ task, onMove, onDelete, onSplit, onEdit }: any) => {

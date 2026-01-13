@@ -19,7 +19,7 @@ interface AIResponseItem {
 
 export default function App() {
   const insets = useSafeAreaInsets();
-  const API_URL = 'http://192.168.1.103:8000/analyze-mixed'; 
+  const API_URL = 'https://viraflow.onrender.com/analyze-mixed'; 
   const { tasks, addTask, toggleTaskCompletion, deleteTask } = useTasks(); 
   
   const [inputText, setInputText] = useState<string>('');

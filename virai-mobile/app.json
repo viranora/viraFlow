@@ -1,0 +1,56 @@
+{
+  "expo": {
+    "name": "Vira Flow",
+    "slug": "vira-flow",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "viraflow",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#151920"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.semanur.viraflow"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#151920"
+      },
+      "package": "com.semanur.viraflow",
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "INTERNET"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Görsel analizi için galerine erişmemiz gerekiyor.",
+          "cameraPermission": "Notlarının fotoğrafını çekebilmek için kamerana erişmemiz gerekiyor."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "BURAYA_EAS_ID_GELECEK"
+      }
+    }
+  }
+}

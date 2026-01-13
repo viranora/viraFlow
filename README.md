@@ -24,21 +24,26 @@
 
 ### 1. Backend (API) Setup
 
-# Clone the repository
+ Clone the repository
+ 
 git clone [https://github.com/YOUR_USERNAME/viraFlow.git](https://github.com/YOUR_USERNAME/viraFlow.git)
 cd viraFlow/virai-api
 
-# Create a virtual environment
+ Create a virtual environment
+ 
 python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# Install dependencies
+ Install dependencies
+ 
 pip install -r requirements.txt
 
-# Create .env file and add your Google API Key
+ Create .env file and add your Google API Key
+ 
 echo "GOOGLE_API_KEY=AIzaSy..." > .env
 
-# Run the server
+ Run the server
+ 
 uvicorn main:app --reload
 
 ### 2. Mobile App Setup
@@ -46,15 +51,18 @@ uvicorn main:app --reload
 Bash
 cd ../virai-mobile
 
-# Install dependencies
+ Install dependencies
+ 
 npm install
 
-# For iOS (Mac only)
+ For iOS (Mac only)
+ 
 cd ios && pod install && cd ..
 
-# Run the app
+ Run the app
+ 
 npm start
-# Press 'i' for iOS simulator or 'a' for Android emulator
+ Press 'i' for iOS simulator or 'a' for Android emulator
 
 ### API Endpoints
 

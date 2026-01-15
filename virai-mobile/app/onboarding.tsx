@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 
+// --- SLAYTLAR GÜNCELLENDİ (KOÇ SİLİNDİ) ---
 const SLIDES = [
   {
     id: '1',
@@ -18,14 +19,8 @@ const SLIDES = [
   {
     id: '2',
     title: 'Stratejik Planlama',
-    description: 'Büyük hedefleri parçala, sürükle-bırak ile yönet ve asla kaybolma.',
+    description: 'Büyük hedefleri yönet, sürükle-bırak ile organize ol ve asla kaybolma.',
     icon: 'git-network-outline'
-  },
-  {
-    id: '3',
-    title: 'Acımasız Koç',
-    description: 'Seni pohpohlayan değil, gerçekleri söyleyen bir yapay zeka ile çalış.',
-    icon: 'nuclear-outline' 
   }
 ];
 
@@ -35,10 +30,8 @@ export default function OnboardingScreen() {
 
   const handleNext = async () => {
     if (currentIndex < SLIDES.length - 1) {
-
       flatListRef.current?.scrollToIndex({ index: currentIndex + 1 });
     } else {
-
       try {
         await AsyncStorage.setItem('hasSeenOnboarding', 'true');
         router.replace('/(tabs)'); 
@@ -86,6 +79,7 @@ export default function OnboardingScreen() {
 
       <View style={styles.footer}>
         
+        {/* Pagination Dots */}
         <View style={styles.pagination}>
           {SLIDES.map((_, index) => (
             <View 
@@ -100,6 +94,7 @@ export default function OnboardingScreen() {
 
         <View style={styles.buttonContainer}>
 
+          {/* Sadece son slaytta değilse ATLA butonu göster */}
           {currentIndex < SLIDES.length - 1 && (
             <TouchableOpacity onPress={handleSkip} style={styles.skipButton}>
               <Text style={styles.skipText}>Atla</Text>
@@ -146,7 +141,7 @@ const styles = StyleSheet.create({
   skipText: { color: '#666', fontSize: 16 },
   
   button: { 
-    backgroundColor: COLORS.accent, // Temadaki sarı rengi kullanıyoruz
+    backgroundColor: COLORS.accent, 
     height: 60, borderRadius: 30, paddingHorizontal: 30,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     marginLeft: 'auto' 

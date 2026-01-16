@@ -27,7 +27,7 @@ const TaskContext = createContext<TaskContextType | undefined>(undefined);
 
 export const TaskProvider = ({ children }: { children: ReactNode }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [userName, setUserNameState] = useState<string>('Kullanıcı');
+  const [userName, setUserNameState] = useState<string>('User');
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {

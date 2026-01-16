@@ -4,7 +4,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
-import { useColorScheme, Platform } from 'react-native'; // Platform eklendi
+import { useColorScheme, Platform } from 'react-native'; 
 import { Ionicons } from '@expo/vector-icons';
 import { TaskProvider } from '../../context/TaskContext'; 
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -46,7 +46,7 @@ export default function TabLayout() {
             <Tabs.Screen
               name="index"
               options={{
-                title: 'Akış',
+                title: 'Flow', // Akış -> Flow
                 tabBarIcon: ({ color }) => <Ionicons name="flash" size={24} color={color} />,
               }}
             />
@@ -54,7 +54,7 @@ export default function TabLayout() {
             <Tabs.Screen
               name="explore"
               options={{
-                title: 'Plan',
+                title: 'Plan', // Plan -> Plan (Aynı kalabilir veya Board olabilir)
                 tabBarIcon: ({ color }) => <Ionicons name="albums" size={24} color={color} />,
               }}
             />
@@ -62,7 +62,7 @@ export default function TabLayout() {
             <Tabs.Screen
               name="settings"
               options={{
-                title: 'Ayarlar',
+                title: 'Settings', // Ayarlar -> Settings
                 tabBarIcon: ({ color }) => <Ionicons name="settings-outline" size={24} color={color} />,
               }}
             />

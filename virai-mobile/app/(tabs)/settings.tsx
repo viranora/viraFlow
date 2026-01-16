@@ -13,14 +13,14 @@ export default function SettingsScreen() {
   const handleSaveName = () => {
     if(nameInput.trim()) {
       setUserName(nameInput);
-      Alert.alert("Başarılı", `Merhaba ${nameInput}, artık seni tanıyorum.`);
+      Alert.alert("Success", `Hello ${nameInput}, I know you now.`);
     }
   };
 
   const handleReset = () => {
-    Alert.alert("DİKKAT", "Tüm görevlerin ve verilerin silinecek. Emin misin?", [
-      { text: "Vazgeç" },
-      { text: "SİL", onPress: () => { clearAllData(); setNameInput('Kullanıcı'); }, style: 'destructive' }
+    Alert.alert("WARNING", "All your tasks and data will be deleted. Are you sure?", [
+      { text: "Cancel" },
+      { text: "RESET", onPress: () => { clearAllData(); setNameInput('User'); }, style: 'destructive' }
     ]);
   };
 
@@ -32,21 +32,21 @@ export default function SettingsScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Ayarlar</Text>
+        <Text style={styles.headerTitle}>Settings</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
         
-        {/* KİMLİK KARTI */}
+        {/* IDENTITY CARD */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>KİMLİK</Text>
+          <Text style={styles.sectionTitle}>IDENTITY</Text>
           <View style={styles.card}>
             <View style={styles.avatarRow}>
               <View style={styles.avatar}>
                 <Text style={styles.avatarText}>{nameInput.charAt(0).toUpperCase()}</Text>
               </View>
               <View style={{flex: 1, marginLeft: 15}}>
-                <Text style={styles.label}>Adın ne?</Text>
+                <Text style={styles.label}>What is your name?</Text>
                 <TextInput 
                   style={styles.input} 
                   value={nameInput} 
@@ -58,14 +58,14 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        {/* GENEL AYARLAR */}
+        {/* GENERAL SETTINGS */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>UYGULAMA</Text>
+          <Text style={styles.sectionTitle}>APP</Text>
           
           <TouchableOpacity style={styles.menuItem} onPress={openPrivacy}>
             <View style={{flexDirection:'row', alignItems:'center'}}>
               <Ionicons name="lock-closed-outline" size={22} color="#FFF" />
-              <Text style={styles.menuText}>Gizlilik Politikası</Text>
+              <Text style={styles.menuText}>Privacy Policy</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#666" />
           </TouchableOpacity>
@@ -73,7 +73,7 @@ export default function SettingsScreen() {
           <TouchableOpacity style={styles.menuItem}>
             <View style={{flexDirection:'row', alignItems:'center'}}>
               <Ionicons name="star-outline" size={22} color="#FFF" />
-              <Text style={styles.menuText}>Bizi Değerlendir</Text>
+              <Text style={styles.menuText}>Rate Us</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#666" />
           </TouchableOpacity>
@@ -81,19 +81,19 @@ export default function SettingsScreen() {
            <View style={styles.menuItem}>
             <View style={{flexDirection:'row', alignItems:'center'}}>
               <Ionicons name="code-slash-outline" size={22} color="#FFF" />
-              <Text style={styles.menuText}>Versiyon</Text>
+              <Text style={styles.menuText}>Version</Text>
             </View>
             <Text style={{color:'#666'}}>v1.0.0</Text>
           </View>
         </View>
 
-        {/* TEHLİKELİ BÖLGE */}
+        {/* DANGER ZONE */}
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, {color: '#FF4757'}]}>TEHLİKELİ BÖLGE</Text>
+          <Text style={[styles.sectionTitle, {color: '#FF4757'}]}>DANGER ZONE</Text>
           <TouchableOpacity style={[styles.menuItem, {borderBottomWidth:0}]} onPress={handleReset}>
             <View style={{flexDirection:'row', alignItems:'center'}}>
               <Ionicons name="trash-outline" size={22} color="#FF4757" />
-              <Text style={[styles.menuText, {color: '#FF4757'}]}>Tüm Verileri Sıfırla</Text>
+              <Text style={[styles.menuText, {color: '#FF4757'}]}>Reset All Data</Text>
             </View>
           </TouchableOpacity>
         </View>

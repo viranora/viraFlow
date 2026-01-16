@@ -19,7 +19,7 @@ interface AIResponseItem {
 
 export default function App() {
   const insets = useSafeAreaInsets();
-  const API_URL = 'https://viraflow.onrender.com/analyze-mixed'; 
+  const API_URL = 'https://viraflow.onrender.com/analyze-mixed'; // Localde ise kendi IP adresin
   const { tasks, addTask, toggleTaskCompletion, deleteTask } = useTasks(); 
   
   const [inputText, setInputText] = useState<string>('');
@@ -28,7 +28,7 @@ export default function App() {
 
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permissionResult.granted) { alert("İzin lazım!"); return; }
+    if (!permissionResult.granted) { alert("Permission needed!"); return; }
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true, quality: 0.5, base64: true,
@@ -43,7 +43,7 @@ export default function App() {
 
     const state = await NetInfo.fetch();
     if (!state.isConnected) {
-      Alert.alert("Bağlantı Hatası", "İnternet bağlantın yok gibi görünüyor. Yapay zeka çevrimdışı çalışamaz.");
+      Alert.alert("Connection Error", "It seems you are offline. AI cannot work without internet.");
       return;
     }
     // --------------------------------
@@ -66,16 +66,16 @@ export default function App() {
       setSelectedImage(null);
     } catch (error) {
       console.error(error);
-      Alert.alert("Sunucu Hatası", "Beyne ulaşamadım. Backend çalışıyor mu?");
+      Alert.alert("Server Error", "Cannot reach the brain. Is the backend running?");
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = (id: string) => {
-    Alert.alert("Görevi Sil", "Bu görevi silmek istiyor musun?", [
-      { text: "Vazgeç" },
-      { text: "Sil", onPress: () => deleteTask(id), style: 'destructive' }
+    Alert.alert("Delete Task", "Do you want to delete this task?", [
+      { text: "Cancel" },
+      { text: "Delete", onPress: () => deleteTask(id), style: 'destructive' }
     ]);
   };
 
@@ -108,7 +108,7 @@ export default function App() {
         <Text style={{ fontSize: 28, fontWeight: '900', color: '#FFF', letterSpacing: 2 }}>
           VIRA<Text style={{ color: COLORS.accent }}>FLOW</Text>
         </Text>
-        <Text style={styles.subtitle}>Akıllı Asistan & Yönetim</Text>
+        <Text style={styles.subtitle}>Smart Assistant & Management</Text>
       </View>
       <View style={styles.listContainer}>
         <FlatList
@@ -117,7 +117,7 @@ export default function App() {
           ListEmptyComponent={
             <View style={styles.emptyState}>
               <Ionicons name="camera-outline" size={48} color={COLORS.card} />
-              <Text style={styles.emptyText}>Notlarını buraya dök.</Text>
+              <Text style={styles.emptyText}>Dump your notes here.</Text>
             </View>
           }
         />
@@ -127,7 +127,7 @@ export default function App() {
            <Ionicons name="image-outline" size={24} color={selectedImage ? COLORS.accent : "#888"} />
         </TouchableOpacity>
         <TextInput
-          style={styles.input} placeholder="Yaz veya fotoğraf ekle..." placeholderTextColor="#666"
+          style={styles.input} placeholder="Type or add a photo..." placeholderTextColor="#666"
           value={inputText} onChangeText={setInputText} multiline
         />
         <TouchableOpacity style={styles.sendButton} onPress={handleAnalyze} disabled={loading}>

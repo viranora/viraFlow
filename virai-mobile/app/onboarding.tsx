@@ -8,18 +8,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 
-// --- SLAYTLAR GÜNCELLENDİ (KOÇ SİLİNDİ) ---
 const SLIDES = [
   {
     id: '1',
-    title: 'Görsel Zeka',
-    description: 'Kağıttaki notlarını, tahtadaki yazıları tek tuşla dijital görevlere dönüştür.',
+    title: 'Visual Intelligence',
+    description: 'Transform your physical notes and whiteboard sessions into digital tasks instantly with one click.',
     icon: 'camera-outline'
   },
   {
     id: '2',
-    title: 'Stratejik Planlama',
-    description: 'Büyük hedefleri yönet, sürükle-bırak ile organize ol ve asla kaybolma.',
+    title: 'Strategic Planning',
+    description: 'Manage big goals, organize with drag-and-drop, and never get lost in the process.',
     icon: 'git-network-outline'
   }
 ];
@@ -36,7 +35,7 @@ export default function OnboardingScreen() {
         await AsyncStorage.setItem('hasSeenOnboarding', 'true');
         router.replace('/(tabs)'); 
       } catch (e) {
-        console.log("Onboarding kayıt hatası:", e);
+        console.log("Onboarding error:", e);
       }
     }
   };
@@ -94,16 +93,15 @@ export default function OnboardingScreen() {
 
         <View style={styles.buttonContainer}>
 
-          {/* Sadece son slaytta değilse ATLA butonu göster */}
           {currentIndex < SLIDES.length - 1 && (
             <TouchableOpacity onPress={handleSkip} style={styles.skipButton}>
-              <Text style={styles.skipText}>Atla</Text>
+              <Text style={styles.skipText}>Skip</Text>
             </TouchableOpacity>
           )}
 
           <TouchableOpacity style={styles.button} onPress={handleNext}>
             <Text style={styles.buttonText}>
-              {currentIndex === SLIDES.length - 1 ? "BAŞLAYALIM" : "İLERLE"}
+              {currentIndex === SLIDES.length - 1 ? "LET'S START" : "NEXT"}
             </Text>
             <Ionicons 
               name={currentIndex === SLIDES.length - 1 ? "rocket-outline" : "arrow-forward"} 

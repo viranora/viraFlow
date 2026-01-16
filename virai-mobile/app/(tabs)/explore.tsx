@@ -14,7 +14,7 @@ import { PieChart } from 'react-native-chart-kit';
 const { width } = Dimensions.get('window');
 const COLUMN_WIDTH = width * 0.85; 
 
-// --- TİP TANIMLAMALARI ---
+// --- TYPE DEFINITIONS ---
 interface DraggableCardProps {
   task: Task;
   onMove: (direction: 'next' | 'prev') => void;
@@ -22,7 +22,7 @@ interface DraggableCardProps {
   onEdit: (task: Task) => void;
 }
 
-// --- KART BİLEŞENİ (SADELEŞTİRİLDİ) ---
+// --- DRAGGABLE CARD COMPONENT ---
 const DraggableCard = ({ task, onMove, onDelete, onEdit }: DraggableCardProps) => {
   const pan = useRef(new Animated.ValueXY()).current;
   const [isDragging, setIsDragging] = useState(false);
@@ -37,7 +37,6 @@ const DraggableCard = ({ task, onMove, onDelete, onEdit }: DraggableCardProps) =
       },
       onPanResponderMove: (e, gestureState) => {
         let dx = gestureState.dx;
-        // Trafik polisi kuralları: Todo sola gidemez, Done sağa gidemez.
         if (task.status === 'todo' && dx < 0) dx = 0; 
         if (task.status === 'done' && dx > 0) dx = 0;
         pan.setValue({ x: dx, y: 0 });
@@ -91,14 +90,13 @@ const DraggableCard = ({ task, onMove, onDelete, onEdit }: DraggableCardProps) =
       >
         <View style={styles.cardHeader}>
           <View style={styles.tagContainer}>
-             <Text style={[styles.tag, { color: statusColor }]}>{task.category?.toUpperCase() || 'GENEL'}</Text>
+             <Text style={[styles.tag, { color: statusColor }]}>{task.category?.toUpperCase() || 'GENERAL'}</Text>
           </View>
           
           <View style={styles.iconGroup}>
             <TouchableOpacity onPress={() => onEdit(task)} style={styles.iconBtn}>
               <Ionicons name="create-outline" size={18} color="#AAA" />
             </TouchableOpacity>
-            {/* Split butonu buradan kaldırıldı */}
             <TouchableOpacity onPress={() => onDelete(task.id)} style={styles.iconBtn}>
               <Ionicons name="trash-outline" size={18} color="#FF6B6B" />
             </TouchableOpacity>
@@ -108,7 +106,7 @@ const DraggableCard = ({ task, onMove, onDelete, onEdit }: DraggableCardProps) =
         <Text style={styles.cardTitle}>{task.title}</Text>
         
         <View style={styles.cardFooter}>
-           <Text style={styles.dateText}>📅 {task.date || 'Tarih Yok'}</Text>
+           <Text style={styles.dateText}>📅 {task.date || 'No Date'}</Text>
         </View>
 
       </LinearGradient>
@@ -126,13 +124,11 @@ export default function KanbanScreen() {
   const [categoryInput, setCategoryInput] = useState('');
   const [dateInput, setDateInput] = useState('');
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  
-  // Coach ve Split ile ilgili tüm state'ler kaldırıldı.
 
   const chartData = useMemo(() => {
     const categoryCounts: Record<string, number> = {};
     tasks.forEach(task => {
-      const cat = task.category || 'Diğer';
+      const cat = task.category || 'Other';
       categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
     });
     const colors = ['#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF', '#9B59B6'];
@@ -155,8 +151,8 @@ export default function KanbanScreen() {
 
   const handleSave = () => {
     if(!titleInput.trim()) return;
-    if (editingTask) editTask(editingTask.id, titleInput, categoryInput || 'Genel', dateInput);
-    else addTask(titleInput, categoryInput || 'Genel', dateInput);
+    if (editingTask) editTask(editingTask.id, titleInput, categoryInput || 'General', dateInput);
+    else addTask(titleInput, categoryInput || 'General', dateInput);
     setModalVisible(false);
   };
 
@@ -176,14 +172,14 @@ export default function KanbanScreen() {
             {columnTasks.length === 0 ? (
                <View style={styles.emptyState}>
                  <Ionicons name="clipboard-outline" size={30} color="#333" />
-                 <Text style={{color:'#444', fontSize:12, marginTop:5}}>Boş</Text>
+                 <Text style={{color:'#444', fontSize:12, marginTop:5}}>Empty</Text>
                </View>
             ) : (
               columnTasks.map(task => (
                 <DraggableCard 
                   key={task.id} task={task} 
                   onMove={(dir) => handleMoveTask(task, dir)} 
-                  onDelete={(id) => Alert.alert("Sil", "Emin misin?", [{text:"İptal"}, {text:"Sil", style:'destructive', onPress:()=>deleteTask(id)}])}
+                  onDelete={(id) => Alert.alert("Delete", "Are you sure?", [{text:"Cancel"}, {text:"Delete", style:'destructive', onPress:()=>deleteTask(id)}])}
                   onEdit={(t) => { setEditingTask(t); setTitleInput(t.title); setCategoryInput(t.category); setDateInput(t.date || ''); setModalVisible(true); }}
                 />
               ))
@@ -201,20 +197,17 @@ export default function KanbanScreen() {
       <View style={styles.header}>
         <View>
           <Text style={styles.subHeader}>VIRA FLOW</Text>
-          <Text style={styles.headerTitle}>Kontrol Paneli</Text>
+          <Text style={styles.headerTitle}>Dashboard</Text>
         </View>
         <View style={styles.headerButtons}>
           <TouchableOpacity style={[styles.iconButton, {backgroundColor: '#2C3A47'}]} onPress={() => setStatsVisible(true)}>
             <Ionicons name="stats-chart" size={20} color="#4D96FF" />
           </TouchableOpacity>
-          {/* Koç butonu kaldırıldı */}
           <TouchableOpacity style={[styles.iconButton, {backgroundColor: COLORS.primary}]} onPress={() => { setEditingTask(null); setTitleInput(''); setCategoryInput(''); setDateInput(''); setModalVisible(true); }}>
             <Ionicons name="add" size={24} color="#000" />
           </TouchableOpacity>
         </View>
       </View>
-
-      {/* Advice Box kaldırıldı */}
 
       {/* --- KANBAN BOARD --- */}
       <ScrollView 
@@ -225,46 +218,46 @@ export default function KanbanScreen() {
         contentContainerStyle={styles.boardContent}
         showsHorizontalScrollIndicator={false}
       >
-        {renderColumn("YAPILACAKLAR", 'todo', '#FF6B6B')}
-        {renderColumn("İŞLEMDE", 'in-progress', '#FFD93D')}
-        {renderColumn("TAMAMLANDI", 'done', '#6BCB77')}
+        {renderColumn("TO DO", 'todo', '#FF6B6B')}
+        {renderColumn("IN PROGRESS", 'in-progress', '#FFD93D')}
+        {renderColumn("DONE", 'done', '#6BCB77')}
       </ScrollView>
 
-      {/* --- MODAL (EKLEME) --- */}
+      {/* --- MODAL (ADD/EDIT) --- */}
       <Modal visible={modalVisible} animationType="slide" transparent>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
-            <Text style={styles.modalHeader}>{editingTask ? "Görevi Düzenle" : "Yeni Görev"}</Text>
+            <Text style={styles.modalHeader}>{editingTask ? "Edit Task" : "New Task"}</Text>
             
-            <TextInput style={styles.input} placeholder="Görev Başlığı" placeholderTextColor="#555" value={titleInput} onChangeText={setTitleInput} />
+            <TextInput style={styles.input} placeholder="Task Title" placeholderTextColor="#555" value={titleInput} onChangeText={setTitleInput} />
             <View style={{flexDirection:'row', gap:10}}>
-               <TextInput style={[styles.input, {flex:1}]} placeholder="Kategori (Örn: İş)" placeholderTextColor="#555" value={categoryInput} onChangeText={setCategoryInput} />
-               <TextInput style={[styles.input, {flex:1}]} placeholder="Tarih" placeholderTextColor="#555" value={dateInput} onChangeText={setDateInput} />
+               <TextInput style={[styles.input, {flex:1}]} placeholder="Category (e.g. Work)" placeholderTextColor="#555" value={categoryInput} onChangeText={setCategoryInput} />
+               <TextInput style={[styles.input, {flex:1}]} placeholder="Date" placeholderTextColor="#555" value={dateInput} onChangeText={setDateInput} />
             </View>
 
             <View style={styles.modalBtnGroup}>
-              <TouchableOpacity style={styles.cancelBtn} onPress={()=>setModalVisible(false)}><Text style={{color:'#FFF'}}>Vazgeç</Text></TouchableOpacity>
-              <TouchableOpacity style={styles.saveBtn} onPress={handleSave}><Text style={{color:'#000', fontWeight:'bold'}}>Kaydet</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.cancelBtn} onPress={()=>setModalVisible(false)}><Text style={{color:'#FFF'}}>Cancel</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.saveBtn} onPress={handleSave}><Text style={{color:'#000', fontWeight:'bold'}}>Save</Text></TouchableOpacity>
             </View>
           </View>
         </KeyboardAvoidingView>
       </Modal>
 
-      {/* --- MODAL (İSTATİSTİK) --- */}
+      {/* --- MODAL (STATS) --- */}
       <Modal visible={statsVisible} animationType="fade" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.statsContainer}>
-            <Text style={styles.statsTitle}>Performans Analizi</Text>
+            <Text style={styles.statsTitle}>Performance Analysis</Text>
             {chartData.length > 0 ? (
                 <PieChart
                 data={chartData} width={width * 0.8} height={200}
                 chartConfig={{ color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})` }}
                 accessor={"population"} backgroundColor={"transparent"} paddingLeft={"15"} absolute
                 />
-            ) : <Text style={{color:'#666', marginBottom:20}}>Veri yok</Text>}
-            <Text style={styles.progressText}>Tamamlanma: %{progressRate}</Text>
+            ) : <Text style={{color:'#666', marginBottom:20}}>No data</Text>}
+            <Text style={styles.progressText}>Completion: {progressRate}%</Text>
             <TouchableOpacity style={styles.closeStatsBtn} onPress={()=>setStatsVisible(false)}>
-              <Text style={{color:'#FFF'}}>Kapat</Text>
+              <Text style={{color:'#FFF'}}>Close</Text>
             </TouchableOpacity>
           </View>
         </View>

@@ -13,7 +13,7 @@ load_dotenv()
 API_KEY = os.getenv("GOOGLE_API_KEY")
 
 if not API_KEY:
-    raise ValueError("CRITICAL ERROR: GOOGLE_API_KEY not found in .env file!")
+    raise ValueError("GOOGLE_API_KEY not found in .env file!")
 
 client = genai.Client(api_key=API_KEY)
 
@@ -51,7 +51,6 @@ def clean_json_string(json_str):
 
 @app.post("/analyze-mixed")
 async def analyze_mixed(request: TaskRequest):
-    # PROMPT ARTIK İNGİLİZCE
     prompt_instruction = """
     You are a professional project manager.
     Analyze the incoming text or image and convert it into clear, actionable tasks.
@@ -68,7 +67,9 @@ async def analyze_mixed(request: TaskRequest):
     }
     """
     
-    contents = [prompt_instruction, request.text]
+    contents = []
+    contents.append(types.Part.from_text(text=prompt_instruction))
+    contents.append(types.Part.from_text(text=request.text))
 
     if request.image_base64:
         try:
@@ -82,11 +83,11 @@ async def analyze_mixed(request: TaskRequest):
             contents.append(image_part)
             
         except Exception as e:
-            print(f"Image processing error: {e}")
+            print(f"Image Error: {e}")
 
     try:
         response = client.models.generate_content(
-            model="gemini-2.0-flash", 
+            model="gemini-1.5-flash", 
             contents=contents
         )
         
@@ -94,7 +95,6 @@ async def analyze_mixed(request: TaskRequest):
         return json.loads(cleaned_json)
     
     except Exception as e:
-        print(f"AI Error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/")

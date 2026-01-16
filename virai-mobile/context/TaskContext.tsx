@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
+import * as Haptics from 'expo-haptics'; // Eklendi
 
 export interface Task {
   id: string;
@@ -15,7 +16,6 @@ interface TaskContextType {
   userName: string;
   setUserName: (name: string) => void;
   addTask: (title: string, category: string, date?: string) => void;
-
   editTask: (id: string, newTitle: string, newCategory: string, newDate?: string) => void;
   updateTaskStatus: (id: string, status: Task['status']) => void;
   toggleTaskCompletion: (id: string) => void;
@@ -25,6 +25,25 @@ interface TaskContextType {
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
 
+async function saveEncrypted(key: string, value: any) {
+  try {
+    const jsonValue = JSON.stringify(value);
+    await SecureStore.setItemAsync(key, jsonValue);
+  } catch (e) {
+    console.error("Encryption save error:", e);
+  }
+}
+
+async function getEncrypted(key: string) {
+  try {
+    const value = await SecureStore.getItemAsync(key);
+    return value ? JSON.parse(value) : null;
+  } catch (e) {
+    console.error("Encryption read error:", e);
+    return null;
+  }
+}
+
 export const TaskProvider = ({ children }: { children: ReactNode }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [userName, setUserNameState] = useState<string>('User');
@@ -32,45 +51,35 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const loadData = async () => {
-      try {
-        const savedTasks = await AsyncStorage.getItem('virai_tasks');
-        const savedName = await AsyncStorage.getItem('virai_username');
-        
-        if (savedTasks) {
-          const parsed = JSON.parse(savedTasks);
-          // ID çakışması önleme (Eski veriler için)
-          const uniqueTasks = parsed.map((t: Task) => ({
-             ...t, 
-             id: t.id || Date.now().toString() + Math.random().toString().substr(2, 5) 
-          }));
-          setTasks(uniqueTasks);
-        }
-        if (savedName) setUserNameState(savedName);
-      } catch (error) {
-        console.error("Yükleme hatası:", error);
-      } finally {
-        setIsLoaded(true);
-      }
+      const savedTasks = await getEncrypted('viraflow_secure_tasks');
+      const savedName = await SecureStore.getItemAsync('viraflow_secure_username');
+      
+      if (savedTasks) setTasks(savedTasks);
+      if (savedName) setUserNameState(savedName);
+      
+      setIsLoaded(true);
     };
     loadData();
   }, []);
 
   useEffect(() => {
     if (isLoaded) {
-      AsyncStorage.setItem('virai_tasks', JSON.stringify(tasks));
+      saveEncrypted('viraflow_secure_tasks', tasks);
     }
   }, [tasks, isLoaded]);
 
   const setUserName = async (name: string) => {
     setUserNameState(name);
-    await AsyncStorage.setItem('virai_username', name);
+    await SecureStore.setItemAsync('viraflow_secure_username', name);
   };
 
   const clearAllData = async () => {
     try {
-      await AsyncStorage.multiRemove(['virai_tasks', 'virai_username']);
+      await SecureStore.deleteItemAsync('viraflow_secure_tasks');
+      await SecureStore.deleteItemAsync('viraflow_secure_username');
       setTasks([]);
-      setUserNameState('Kullanıcı');
+      setUserNameState('User');
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); // Veri sıfırlama uyarısı
     } catch (e) { console.error(e); }
   };
 
@@ -82,21 +91,25 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
     setTasks(prev => [newTask, ...prev]);
   };
 
-  // YENİ: Düzenleme Mantığı
   const editTask = (id: string, title: string, category: string, date: string = '') => {
     setTasks(prev => prev.map(task => 
       task.id === id ? { ...task, title, category, date } : task
     ));
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); // Düzenleme tıkı
   };
 
   const updateTaskStatus = (id: string, status: Task['status']) => {
     setTasks(prev => prev.map(t => t.id === id ? { ...t, status } : t));
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); // Sürükleme tıkı
   };
 
   const toggleTaskCompletion = (id: string) => {
     setTasks(prev => prev.map(t => {
       if (t.id === id) {
         const newCompleted = !t.completed;
+        if (newCompleted) {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); // Tamamlama kutlaması
+        }
         return { ...t, completed: newCompleted, status: newCompleted ? 'done' : 'todo' };
       }
       return t;
@@ -105,6 +118,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
 
   const deleteTask = (id: string) => {
     setTasks(prev => prev.filter(t => t.id !== id));
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy); // Silme sarsıntısı
   };
 
   return (

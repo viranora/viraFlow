@@ -2,7 +2,7 @@
   "expo": {
     "name": "Vira Flow",
     "slug": "vira-flow",
-    "version": "1.0.0",
+    "version": "1.2.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "viraflow",
@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#151920"
+      "backgroundColor": "#1E1B18"
     },
     "ios": {
       "supportsTablet": true,
@@ -19,13 +19,10 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#151920"
+        "backgroundColor": "#2D2926"
       },
       "package": "com.semanur.viraflow",
       "permissions": [
-        "CAMERA",
-        "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE",
         "INTERNET"
       ]
     },
@@ -36,20 +33,17 @@
     },
     "plugins": [
       "expo-router",
-      [
-        "expo-image-picker",
-        {
-          "photosPermission": "Görsel analizi için galerine erişmemiz gerekiyor.",
-          "cameraPermission": "Notlarının fotoğrafını çekebilmek için kamerana erişmemiz gerekiyor."
-        }
-      ]
+      "expo-secure-store",
+      "@sentry/react-native/expo"
     ],
     "experiments": {
       "typedRoutes": true
     },
     "extra": {
+      "sentryDsn": "https://ba4d63635b2579b9a0cdd184edba3d68@o4510721655242752.ingest.de.sentry.io/4510721661272144",
+      "router": {},
       "eas": {
-        "projectId": "BURAYA_EAS_ID_GELECEK"
+        "projectId": "d261fa49-a200-4c85-b4cc-af9bd3863877"
       }
     }
   }

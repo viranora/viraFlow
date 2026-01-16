@@ -8,6 +8,7 @@ import { useColorScheme, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { TaskProvider } from '../../context/TaskContext'; 
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { COLORS } from '../../constants/theme';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -24,12 +25,12 @@ export default function TabLayout() {
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <Tabs
             screenOptions={{
-              tabBarActiveTintColor: '#FFD93D',
-              tabBarInactiveTintColor: '#666',
+              tabBarActiveTintColor: COLORS.primary,
+              tabBarInactiveTintColor: COLORS.accent,
               tabBarStyle: {
-                backgroundColor: '#151920',
+                backgroundColor: COLORS.background,
                 borderTopWidth: 1,
-                borderTopColor: '#333',
+                borderTopColor: COLORS.card,
                 height: Platform.OS === 'ios' ? 90 : 70, 
                 paddingBottom: Platform.OS === 'ios' ? 30 : 10,
                 paddingTop: 10,
@@ -46,29 +47,29 @@ export default function TabLayout() {
             <Tabs.Screen
               name="index"
               options={{
-                title: 'Flow', // Akış -> Flow
-                tabBarIcon: ({ color }) => <Ionicons name="flash" size={24} color={color} />,
+                title: 'Flow',
+                tabBarIcon: ({ color }) => <Ionicons name="leaf-outline" size={24} color={color} />,
               }}
             />
 
             <Tabs.Screen
               name="explore"
               options={{
-                title: 'Plan', // Plan -> Plan (Aynı kalabilir veya Board olabilir)
-                tabBarIcon: ({ color }) => <Ionicons name="albums" size={24} color={color} />,
+                title: 'Plan',
+                tabBarIcon: ({ color }) => <Ionicons name="layers-outline" size={24} color={color} />,
               }}
             />
 
             <Tabs.Screen
               name="settings"
               options={{
-                title: 'Settings', // Ayarlar -> Settings
-                tabBarIcon: ({ color }) => <Ionicons name="settings-outline" size={24} color={color} />,
+                title: 'Settings',
+                tabBarIcon: ({ color }) => <Ionicons name="options-outline" size={24} color={color} />,
               }}
             />
             
           </Tabs>
-          <StatusBar style="auto" />
+          <StatusBar style="light" />
         </ThemeProvider>
       </TaskProvider>
     </GestureHandlerRootView>

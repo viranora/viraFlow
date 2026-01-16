@@ -11,15 +11,15 @@ const { width } = Dimensions.get('window');
 const SLIDES = [
   {
     id: '1',
-    title: 'Visual Intelligence',
-    description: 'Transform your physical notes and whiteboard sessions into digital tasks instantly with one click.',
-    icon: 'camera-outline'
+    title: 'Smart AI Analysis',
+    description: 'Paste your messy notes or thoughts. Our AI instantly extracts actionable tasks, categories, and deadlines.',
+    icon: 'sparkles-outline'
   },
   {
     id: '2',
     title: 'Strategic Planning',
-    description: 'Manage big goals, organize with drag-and-drop, and never get lost in the process.',
-    icon: 'git-network-outline'
+    description: 'Manage complex goals with a modern Kanban system. Organize, track, and complete tasks with ease.',
+    icon: 'leaf-outline'
   }
 ];
 
@@ -67,7 +67,7 @@ export default function OnboardingScreen() {
           renderItem={({ item }) => (
             <View style={styles.slide}>
               <View style={styles.iconContainer}>
-                <Ionicons name={item.icon as any} size={100} color={COLORS.accent} />
+                <Ionicons name={item.icon as any} size={100} color={COLORS.primary} />
               </View>
               <Text style={styles.title}>{item.title}</Text>
               <Text style={styles.description}>{item.description}</Text>
@@ -77,8 +77,6 @@ export default function OnboardingScreen() {
       </View>
 
       <View style={styles.footer}>
-        
-        {/* Pagination Dots */}
         <View style={styles.pagination}>
           {SLIDES.map((_, index) => (
             <View 
@@ -92,13 +90,11 @@ export default function OnboardingScreen() {
         </View>
 
         <View style={styles.buttonContainer}>
-
           {currentIndex < SLIDES.length - 1 && (
             <TouchableOpacity onPress={handleSkip} style={styles.skipButton}>
               <Text style={styles.skipText}>Skip</Text>
             </TouchableOpacity>
           )}
-
           <TouchableOpacity style={styles.button} onPress={handleNext}>
             <Text style={styles.buttonText}>
               {currentIndex === SLIDES.length - 1 ? "LET'S START" : "NEXT"}
@@ -121,25 +117,22 @@ const styles = StyleSheet.create({
   slide: { width, alignItems: 'center', justifyContent: 'center', padding: 20 },
   iconContainer: { 
     width: 200, height: 200, borderRadius: 100, 
-    backgroundColor: '#1F2530', justifyContent: 'center', alignItems: 'center',
+    backgroundColor: COLORS.card, justifyContent: 'center', alignItems: 'center',
     marginBottom: 40,
-    borderWidth: 2, borderColor: '#333',
-    shadowColor: COLORS.accent, shadowOffset: {width: 0, height: 0}, shadowOpacity: 0.2, shadowRadius: 20, elevation: 5
+    borderWidth: 2, borderColor: '#433D35',
   },
-  title: { fontSize: 32, fontWeight: 'bold', color: '#FFF', marginBottom: 15, textAlign: 'center' },
-  description: { fontSize: 16, color: '#888', textAlign: 'center', paddingHorizontal: 20, lineHeight: 24 },
+  title: { fontSize: 32, fontWeight: 'bold', color: COLORS.text, marginBottom: 15, textAlign: 'center' },
+  description: { fontSize: 16, color: COLORS.accent, textAlign: 'center', paddingHorizontal: 20, lineHeight: 24 },
   footer: { flex: 1, justifyContent: 'space-between', paddingHorizontal: 20, paddingBottom: 50 },
   pagination: { flexDirection: 'row', justifyContent: 'center', marginTop: 20 },
   dot: { height: 10, borderRadius: 5, marginHorizontal: 5 },
-  dotActive: { width: 30, backgroundColor: COLORS.accent },
-  dotInactive: { width: 10, backgroundColor: '#333' },
-  
+  dotActive: { width: 30, backgroundColor: COLORS.primary },
+  dotInactive: { width: 10, backgroundColor: COLORS.card },
   buttonContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 },
   skipButton: { padding: 15 },
-  skipText: { color: '#666', fontSize: 16 },
-  
+  skipText: { color: COLORS.accent, fontSize: 16 },
   button: { 
-    backgroundColor: COLORS.accent, 
+    backgroundColor: COLORS.primary, 
     height: 60, borderRadius: 30, paddingHorizontal: 30,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     marginLeft: 'auto' 

@@ -14,7 +14,6 @@ import { PieChart } from 'react-native-chart-kit';
 const { width } = Dimensions.get('window');
 const COLUMN_WIDTH = width * 0.85; 
 
-// --- TYPE DEFINITIONS ---
 interface DraggableCardProps {
   task: Task;
   onMove: (direction: 'next' | 'prev') => void;
@@ -22,7 +21,6 @@ interface DraggableCardProps {
   onEdit: (task: Task) => void;
 }
 
-// --- DRAGGABLE CARD COMPONENT ---
 const DraggableCard = ({ task, onMove, onDelete, onEdit }: DraggableCardProps) => {
   const pan = useRef(new Animated.ValueXY()).current;
   const [isDragging, setIsDragging] = useState(false);
@@ -60,14 +58,14 @@ const DraggableCard = ({ task, onMove, onDelete, onEdit }: DraggableCardProps) =
 
   const getGradientColors = () => {
     switch(task.status) {
-      case 'todo': return ['#2A2D3E', '#1F222E'] as const;
-      case 'in-progress': return ['#2C3A47', '#1B2028'] as const;
-      case 'done': return ['#1B2E24', '#111'] as const;
-      default: return ['#2A2D3E', '#1F222E'] as const;
+      case 'todo': return ['#3D3833', '#2D2926'] as const;
+      case 'in-progress': return ['#433D35', '#2D2926'] as const;
+      case 'done': return ['#2D2926', '#1E1B18'] as const;
+      default: return [COLORS.card, COLORS.background] as const;
     }
   };
 
-  const statusColor = task.status === 'todo' ? '#FF6B6B' : task.status === 'in-progress' ? '#FFD93D' : '#6BCB77';
+  const statusColor = task.status === 'todo' ? COLORS.error : task.status === 'in-progress' ? COLORS.primary : COLORS.success;
 
   const rotate = pan.x.interpolate({
     inputRange: [-200, 0, 200],
@@ -95,10 +93,10 @@ const DraggableCard = ({ task, onMove, onDelete, onEdit }: DraggableCardProps) =
           
           <View style={styles.iconGroup}>
             <TouchableOpacity onPress={() => onEdit(task)} style={styles.iconBtn}>
-              <Ionicons name="create-outline" size={18} color="#AAA" />
+              <Ionicons name="create-outline" size={18} color={COLORS.accent} />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => onDelete(task.id)} style={styles.iconBtn}>
-              <Ionicons name="trash-outline" size={18} color="#FF6B6B" />
+              <Ionicons name="trash-outline" size={18} color={COLORS.error} />
             </TouchableOpacity>
           </View>
         </View>
@@ -131,9 +129,9 @@ export default function KanbanScreen() {
       const cat = task.category || 'Other';
       categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
     });
-    const colors = ['#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF', '#9B59B6'];
+    const colors = [COLORS.error, COLORS.primary, COLORS.success, '#4D96FF', COLORS.accent];
     return Object.keys(categoryCounts).map((key, index) => ({
-      name: key, population: categoryCounts[key], color: colors[index % colors.length], legendFontColor: "#CCC", legendFontSize: 12
+      name: key, population: categoryCounts[key], color: colors[index % colors.length], legendFontColor: COLORS.accent, legendFontSize: 12
     }));
   }, [tasks]);
 
@@ -160,7 +158,7 @@ export default function KanbanScreen() {
     const columnTasks = tasks.filter(t => t.status === status);
     return (
       <View style={styles.columnContainer}>
-        <LinearGradient colors={['#1F222E', '#121418']} style={styles.columnGradient}>
+        <LinearGradient colors={[COLORS.card, COLORS.background]} style={styles.columnGradient}>
           <View style={[styles.columnHeader, { borderBottomColor: accentColor }]}>
             <Text style={[styles.columnTitle, { color: accentColor }]}>{title}</Text>
             <View style={[styles.countBadge, { backgroundColor: accentColor + '30' }]}>
@@ -171,8 +169,8 @@ export default function KanbanScreen() {
           <ScrollView style={styles.columnScroll} showsVerticalScrollIndicator={false} contentContainerStyle={{paddingBottom: 20}}>
             {columnTasks.length === 0 ? (
                <View style={styles.emptyState}>
-                 <Ionicons name="clipboard-outline" size={30} color="#333" />
-                 <Text style={{color:'#444', fontSize:12, marginTop:5}}>Empty</Text>
+                 <Ionicons name="clipboard-outline" size={30} color={COLORS.card} />
+                 <Text style={{color:COLORS.accent, fontSize:12, marginTop:5}}>Empty</Text>
                </View>
             ) : (
               columnTasks.map(task => (
@@ -193,15 +191,14 @@ export default function KanbanScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       
-      {/* --- HEADER --- */}
       <View style={styles.header}>
         <View>
           <Text style={styles.subHeader}>VIRA FLOW</Text>
           <Text style={styles.headerTitle}>Dashboard</Text>
         </View>
         <View style={styles.headerButtons}>
-          <TouchableOpacity style={[styles.iconButton, {backgroundColor: '#2C3A47'}]} onPress={() => setStatsVisible(true)}>
-            <Ionicons name="stats-chart" size={20} color="#4D96FF" />
+          <TouchableOpacity style={[styles.iconButton, {backgroundColor: COLORS.card}]} onPress={() => setStatsVisible(true)}>
+            <Ionicons name="stats-chart" size={20} color={COLORS.primary} />
           </TouchableOpacity>
           <TouchableOpacity style={[styles.iconButton, {backgroundColor: COLORS.primary}]} onPress={() => { setEditingTask(null); setTitleInput(''); setCategoryInput(''); setDateInput(''); setModalVisible(true); }}>
             <Ionicons name="add" size={24} color="#000" />
@@ -209,7 +206,6 @@ export default function KanbanScreen() {
         </View>
       </View>
 
-      {/* --- KANBAN BOARD --- */}
       <ScrollView 
         horizontal 
         pagingEnabled 
@@ -218,21 +214,20 @@ export default function KanbanScreen() {
         contentContainerStyle={styles.boardContent}
         showsHorizontalScrollIndicator={false}
       >
-        {renderColumn("TO DO", 'todo', '#FF6B6B')}
-        {renderColumn("IN PROGRESS", 'in-progress', '#FFD93D')}
-        {renderColumn("DONE", 'done', '#6BCB77')}
+        {renderColumn("TO DO", 'todo', COLORS.error)}
+        {renderColumn("IN PROGRESS", 'in-progress', COLORS.primary)}
+        {renderColumn("DONE", 'done', COLORS.success)}
       </ScrollView>
 
-      {/* --- MODAL (ADD/EDIT) --- */}
       <Modal visible={modalVisible} animationType="slide" transparent>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalHeader}>{editingTask ? "Edit Task" : "New Task"}</Text>
             
-            <TextInput style={styles.input} placeholder="Task Title" placeholderTextColor="#555" value={titleInput} onChangeText={setTitleInput} />
+            <TextInput style={styles.input} placeholder="Task Title" placeholderTextColor={COLORS.accent} value={titleInput} onChangeText={setTitleInput} />
             <View style={{flexDirection:'row', gap:10}}>
-               <TextInput style={[styles.input, {flex:1}]} placeholder="Category (e.g. Work)" placeholderTextColor="#555" value={categoryInput} onChangeText={setCategoryInput} />
-               <TextInput style={[styles.input, {flex:1}]} placeholder="Date" placeholderTextColor="#555" value={dateInput} onChangeText={setDateInput} />
+               <TextInput style={[styles.input, {flex:1}]} placeholder="Category" placeholderTextColor={COLORS.accent} value={categoryInput} onChangeText={setCategoryInput} />
+               <TextInput style={[styles.input, {flex:1}]} placeholder="Date" placeholderTextColor={COLORS.accent} value={dateInput} onChangeText={setDateInput} />
             </View>
 
             <View style={styles.modalBtnGroup}>
@@ -243,7 +238,6 @@ export default function KanbanScreen() {
         </KeyboardAvoidingView>
       </Modal>
 
-      {/* --- MODAL (STATS) --- */}
       <Modal visible={statsVisible} animationType="fade" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.statsContainer}>
@@ -254,7 +248,7 @@ export default function KanbanScreen() {
                 chartConfig={{ color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})` }}
                 accessor={"population"} backgroundColor={"transparent"} paddingLeft={"15"} absolute
                 />
-            ) : <Text style={{color:'#666', marginBottom:20}}>No data</Text>}
+            ) : <Text style={{color:COLORS.accent, marginBottom:20}}>No data</Text>}
             <Text style={styles.progressText}>Completion: {progressRate}%</Text>
             <TouchableOpacity style={styles.closeStatsBtn} onPress={()=>setStatsVisible(false)}>
               <Text style={{color:'#FFF'}}>Close</Text>
@@ -268,44 +262,38 @@ export default function KanbanScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0D0E12' },
-  
+  container: { flex: 1, backgroundColor: COLORS.background },
   header: { padding: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   subHeader: { color: COLORS.primary, fontSize: 10, letterSpacing: 2, fontWeight: 'bold' },
-  headerTitle: { color: '#FFF', fontSize: 26, fontWeight: 'bold' },
+  headerTitle: { color: COLORS.text, fontSize: 26, fontWeight: 'bold' },
   headerButtons: { flexDirection: 'row', gap: 10 },
-  iconButton: { width: 40, height: 40, borderRadius: 12, justifyContent: 'center', alignItems: 'center', shadowColor: "#000", shadowOffset: {width:0, height:4}, shadowOpacity:0.3, shadowRadius:4 },
-
+  iconButton: { width: 40, height: 40, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
   boardContent: { paddingHorizontal: 10, paddingBottom: 20 },
   columnContainer: { width: COLUMN_WIDTH, marginHorizontal: 10, height: '82%', borderRadius: 20, overflow: 'hidden' },
   columnGradient: { flex: 1, padding: 15 },
   columnHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15, borderBottomWidth: 1, paddingBottom: 10 },
   columnTitle: { fontSize: 16, fontWeight: 'bold', letterSpacing: 1 },
   countBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 },
-  
   columnScroll: { flex: 1 },
   emptyState: { alignItems: 'center', marginTop: 50, opacity: 0.5 },
-
   card: { borderRadius: 12, padding: 16, borderLeftWidth: 4, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
-  tagContainer: { backgroundColor: 'rgba(255,255,255,0.1)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 4 },
+  tagContainer: { backgroundColor: 'rgba(255,255,255,0.05)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 4 },
   tag: { fontSize: 10, fontWeight: 'bold' },
   iconGroup: { flexDirection: 'row', gap: 8 },
   iconBtn: { padding: 4 },
-  cardTitle: { color: '#FFF', fontSize: 15, fontWeight: '500', lineHeight: 22, marginBottom: 10 },
+  cardTitle: { color: COLORS.text, fontSize: 15, fontWeight: '500', lineHeight: 22, marginBottom: 10 },
   cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.05)', paddingTop: 10 },
-  dateText: { color: '#666', fontSize: 11 },
-
+  dateText: { color: COLORS.accent, fontSize: 11 },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'center', padding: 20 },
-  modalContainer: { backgroundColor: '#1F222E', borderRadius: 20, padding: 20, borderWidth: 1, borderColor: '#333' },
-  modalHeader: { color: '#FFF', fontSize: 20, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
-  input: { backgroundColor: '#121418', color: '#FFF', padding: 15, borderRadius: 10, marginBottom: 15, borderWidth: 1, borderColor: '#333' },
+  modalContainer: { backgroundColor: COLORS.card, borderRadius: 20, padding: 20, borderWidth: 1, borderColor: '#433D35' },
+  modalHeader: { color: COLORS.text, fontSize: 20, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
+  input: { backgroundColor: COLORS.background, color: COLORS.text, padding: 15, borderRadius: 10, marginBottom: 15, borderWidth: 1, borderColor: '#433D35' },
   modalBtnGroup: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 },
-  cancelBtn: { flex: 1, padding: 15, backgroundColor: '#333', borderRadius: 10, marginRight: 10, alignItems: 'center' },
+  cancelBtn: { flex: 1, padding: 15, backgroundColor: '#3D3833', borderRadius: 10, marginRight: 10, alignItems: 'center' },
   saveBtn: { flex: 1, padding: 15, backgroundColor: COLORS.primary, borderRadius: 10, marginLeft: 10, alignItems: 'center' },
-  
-  statsContainer: { backgroundColor: '#1F222E', padding: 20, borderRadius: 20, alignItems: 'center' },
-  statsTitle: { color: '#FFF', fontSize: 18, fontWeight: 'bold', marginBottom: 20 },
-  progressText: { color: COLORS.accent, fontSize: 20, fontWeight: 'bold', marginVertical: 20 },
+  statsContainer: { backgroundColor: COLORS.card, padding: 20, borderRadius: 20, alignItems: 'center' },
+  statsTitle: { color: COLORS.text, fontSize: 18, fontWeight: 'bold', marginBottom: 20 },
+  progressText: { color: COLORS.primary, fontSize: 20, fontWeight: 'bold', marginVertical: 20 },
   closeStatsBtn: { padding: 10 },
 });

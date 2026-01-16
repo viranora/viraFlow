@@ -7,8 +7,17 @@ import 'react-native-reanimated';
 import { useColorScheme } from 'react-native'; 
 import { TaskProvider } from '../context/TaskContext'; 
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import * as Sentry from '@sentry/react-native';
+import Constants from 'expo-constants';
 
 SplashScreen.preventAutoHideAsync();
+
+// Sentry Başlatma
+Sentry.init({
+  dsn: Constants.expoConfig?.extra?.sentryDsn, // app.json'dan DSN'i çeker
+  debug: __DEV__, // Sadece geliştirme modunda konsola log basar
+  tracesSampleRate: 1.0, // Hata takip oranı
+});
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();

@@ -7,6 +7,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from google import genai
+from google.genai import types
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -57,20 +58,10 @@ def mask_sensitive_info(text: str) -> str:
     
     return text
 
-def clean_json_string(json_str):
-    try:
-        if "```json" in json_str:
-            json_str = json_str.split("```json")[1].split("```")[0]
-        elif "```" in json_str:
-            json_str = json_str.split("```")[1].split("```")[0]
-        return json_str.strip()
-    except Exception:
-        return json_str
-
 def detect_language(text: str) -> str:
     """Detect if text is English or Turkish"""
     turkish_chars = set('çğıöşüÇĞİÖŞÜ')
-    turkish_words = {'ve', 'bir', 'bu', 'için', 'ile', 'olan', 'çok', 'var', 'yok', 'mı', 'mi', 'da', 'de', 'ne', 'şu'}
+    turkish_words = {'ve', 'bir', 'bu', 'için', 'ile', 'olan', 'çok', 'var', 'yok', 'mı', 'mi', 'da', 'de', 'ne', 'şu', 'ama', 'ise'}
     
     # Türkçe karakter kontrolü
     if any(char in turkish_chars for char in text):
@@ -80,7 +71,7 @@ def detect_language(text: str) -> str:
     words = text.lower().split()
     turkish_word_count = sum(1 for word in words if word in turkish_words)
     
-    if turkish_word_count > len(words) * 0.15:  # %15'den fazlası Türkçe kelime
+    if turkish_word_count > len(words) * 0.15:
         return "Turkish"
     
     return "English"
@@ -91,51 +82,77 @@ async def analyze_mixed(request: TaskRequest, req: Request):
     clean_text = mask_sensitive_info(request.text)
     detected_lang = detect_language(clean_text)
     
+    # Dile göre prompt ve kategori listesi
     if detected_lang == "English":
-        full_prompt = f"""
-SYSTEM: You MUST respond in ENGLISH only. DO NOT translate to Turkish under any circumstances.
+        system_instruction = "You are a task extraction assistant. You MUST respond ONLY in ENGLISH. Never use Turkish words."
+        categories = "Work, Personal, School, Health, Shopping, Project, Finance, Home, Other"
+        user_prompt = f"""Extract tasks from this text in ENGLISH:
 
-USER REQUEST (in English):
 {clean_text}
 
-INSTRUCTIONS:
-- Extract tasks from the text above
-- Task titles MUST be in ENGLISH
-- Categories MUST be in ENGLISH: Work, Personal, School, Health, Shopping, Project, Finance, Home, Other
-- DO NOT use Turkish words
-
-OUTPUT (JSON format only, no explanation):
-{{"extracted_tasks": [{{"task": "English task", "category": "English category", "date": ""}}]}}
-"""
+Rules:
+- Task titles in ENGLISH only
+- Categories in ENGLISH only: {categories}
+- Output JSON format"""
     else:
-        full_prompt = f"""
-SİSTEM: SADECE TÜRKÇE cevap vermelisin. Kesinlikle İngilizceye çevirme.
+        system_instruction = "Sen bir görev çıkarma asistanısın. SADECE TÜRKÇE cevap vermelisin. Asla İngilizce kelime kullanma."
+        categories = "İş, Kişisel, Okul, Sağlık, Alışveriş, Proje, Finans, Ev, Diğer"
+        user_prompt = f"""Bu metinden görevleri TÜRKÇE olarak çıkar:
 
-KULLANICI İSTEĞİ (Türkçe):
 {clean_text}
 
-TALİMATLAR:
-- Yukarıdaki metinden görevleri çıkar
-- Görev başlıkları TÜRKÇE olmalı
-- Kategoriler TÜRKÇE olmalı: İş, Kişisel, Okul, Sağlık, Alışveriş, Proje, Finans, Ev, Diğer
-- İngilizce kelime kullanma
+Kurallar:
+- Görev başlıkları sadece TÜRKÇE
+- Kategoriler sadece TÜRKÇE: {categories}
+- JSON formatında çıktı ver"""
 
-ÇIKTI (Sadece JSON, açıklama yok):
-{{"extracted_tasks": [{{"task": "Türkçe görev", "category": "Türkçe kategori", "date": ""}}]}}
-"""
+    # JSON Schema tanımla
+    response_schema = {
+        "type": "object",
+        "properties": {
+            "extracted_tasks": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "task": {"type": "string"},
+                        "category": {"type": "string"},
+                        "date": {"type": "string"}
+                    },
+                    "required": ["task", "category", "date"]
+                }
+            }
+        },
+        "required": ["extracted_tasks"]
+    }
 
     try:
+        # Gemini 2.0 Flash modelini kullan (daha iyi dil kontrolü)
         response = client.models.generate_content(
-            model="gemini-1.5-flash", 
-            contents=full_prompt
+            model="gemini-2.0-flash-exp",
+            contents=user_prompt,
+            config=types.GenerateContentConfig(
+                system_instruction=system_instruction,
+                temperature=0.1,
+                response_mime_type="application/json",
+                response_schema=response_schema
+            )
         )
         
-        cleaned_json = clean_json_string(response.text)
-        return json.loads(cleaned_json)
+        # JSON parse et
+        result = json.loads(response.text)
+        return result
     
     except Exception as e:
         print(f"AI Error: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        # Fallback: Basit görev oluştur
+        return {
+            "extracted_tasks": [{
+                "task": clean_text[:100],
+                "category": "Other" if detected_lang == "English" else "Diğer",
+                "date": ""
+            }]
+        }
 
 @app.get("/")
 def home():

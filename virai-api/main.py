@@ -67,45 +67,62 @@ def clean_json_string(json_str):
     except Exception:
         return json_str
 
+def detect_language(text: str) -> str:
+    """Detect if text is English or Turkish"""
+    turkish_chars = set('çğıöşüÇĞİÖŞÜ')
+    turkish_words = {'ve', 'bir', 'bu', 'için', 'ile', 'olan', 'çok', 'var', 'yok', 'mı', 'mi', 'da', 'de', 'ne', 'şu'}
+    
+    # Türkçe karakter kontrolü
+    if any(char in turkish_chars for char in text):
+        return "Turkish"
+    
+    # Kelime kontrolü
+    words = text.lower().split()
+    turkish_word_count = sum(1 for word in words if word in turkish_words)
+    
+    if turkish_word_count > len(words) * 0.15:  # %15'den fazlası Türkçe kelime
+        return "Turkish"
+    
+    return "English"
+
 @app.post("/analyze-mixed")
 @limiter.limit("20/minute")
 async def analyze_mixed(request: TaskRequest, req: Request):
     clean_text = mask_sensitive_info(request.text)
+    detected_lang = detect_language(clean_text)
     
-    prompt_instruction = """
-    You are a professional task extraction AI.
+    if detected_lang == "English":
+        full_prompt = f"""
+SYSTEM: You MUST respond in ENGLISH only. DO NOT translate to Turkish under any circumstances.
 
-    CRITICAL RULE - LANGUAGE MATCHING:
-    - INPUT LANGUAGE = OUTPUT LANGUAGE (100% match required)
-    - English input → English output
-    - Turkish input → Turkish output
-    - Never mix languages
+USER REQUEST (in English):
+{clean_text}
 
-    Example 1 (English):
-    Input: "Buy groceries tomorrow and call the dentist"
-    Output: {"extracted_tasks": [{"task": "Buy groceries", "category": "Personal", "date": "tomorrow"}, {"task": "Call the dentist", "category": "Health", "date": ""}]}
+INSTRUCTIONS:
+- Extract tasks from the text above
+- Task titles MUST be in ENGLISH
+- Categories MUST be in ENGLISH: Work, Personal, School, Health, Shopping, Project, Finance, Home, Other
+- DO NOT use Turkish words
 
-    Example 2 (Turkish):
-    Input: "Yarın market alışverişi yap ve dişçiyi ara"
-    Output: {"extracted_tasks": [{"task": "Market alışverişi yap", "category": "Kişisel", "date": "yarın"}, {"task": "Dişçiyi ara", "category": "Sağlık", "date": ""}]}
+OUTPUT (JSON format only, no explanation):
+{{"extracted_tasks": [{{"task": "English task", "category": "English category", "date": ""}}]}}
+"""
+    else:
+        full_prompt = f"""
+SİSTEM: SADECE TÜRKÇE cevap vermelisin. Kesinlikle İngilizceye çevirme.
 
-    CATEGORIES (use in input language):
-    English: Work, Personal, School, Health, Shopping, Project, Finance, Home, Other
-    Turkish: İş, Kişisel, Okul, Sağlık, Alışveriş, Proje, Finans, Ev, Diğer
+KULLANICI İSTEĞİ (Türkçe):
+{clean_text}
 
-    OUTPUT FORMAT (JSON only, no markdown):
-    {
-    "extracted_tasks": [
-        {
-        "task": "Task description in INPUT language",
-        "category": "Category in INPUT language",
-        "date": "Date if mentioned, else empty string"
-        }
-    ]
-    }
-    """
-    
-    full_prompt = f"{prompt_instruction}\n\nUSER INPUT:\n{clean_text}"
+TALİMATLAR:
+- Yukarıdaki metinden görevleri çıkar
+- Görev başlıkları TÜRKÇE olmalı
+- Kategoriler TÜRKÇE olmalı: İş, Kişisel, Okul, Sağlık, Alışveriş, Proje, Finans, Ev, Diğer
+- İngilizce kelime kullanma
+
+ÇIKTI (Sadece JSON, açıklama yok):
+{{"extracted_tasks": [{{"task": "Türkçe görev", "category": "Türkçe kategori", "date": ""}}]}}
+"""
 
     try:
         response = client.models.generate_content(

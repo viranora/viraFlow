@@ -10,6 +10,7 @@ import { COLORS } from '../../constants/theme';
 import { useTasks, Task } from '../../context/TaskContext'; 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import NetInfo from '@react-native-community/netinfo';
+import Constants from 'expo-constants';
 
 interface AIResponseItem {
   task: string;
@@ -19,7 +20,7 @@ interface AIResponseItem {
 
 export default function App() {
   const insets = useSafeAreaInsets();
-  const API_URL = 'https://viraflow.onrender.com/analyze-mixed'; 
+  const API_URL = Constants.expoConfig?.extra?.apiUrl || 'https://viraflow.onrender.com/analyze-mixed';
   const { tasks, addTask, toggleTaskCompletion, deleteTask } = useTasks(); 
   
   const [inputText, setInputText] = useState<string>('');

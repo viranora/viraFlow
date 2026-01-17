@@ -3,10 +3,13 @@ import json
 import re
 from typing import List, Optional
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from google import genai
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 load_dotenv()
 API_KEY = os.getenv("GOOGLE_API_KEY")
@@ -17,6 +20,10 @@ if not API_KEY:
 client = genai.Client(api_key=API_KEY)
 
 app = FastAPI()
+
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
@@ -61,19 +68,26 @@ def clean_json_string(json_str):
         return json_str
 
 @app.post("/analyze-mixed")
-async def analyze_mixed(request: TaskRequest):
+@limiter.limit("20/minute")
+async def analyze_mixed(request: TaskRequest, req: Request):
     clean_text = mask_sensitive_info(request.text)
     
     prompt_instruction = """
     You are a professional project manager.
     Analyze the incoming text and convert it into clear, actionable tasks.
     
+    IMPORTANT: 
+    - Detect the language of the input text
+    - Respond in the SAME language as the input
+    - If input is in English, respond in English
+    - If input is in Turkish, respond in Turkish
+    
     Output ONLY in the following JSON format, do not write anything else:
     {
       "extracted_tasks": [
         {
-          "task": "Task title (Short and clear)",
-          "category": "Category (Work, School, Personal, Project etc.)",
+          "task": "Task title (Short and clear, in the SAME language as input)",
+          "category": "Category (Work, School, Personal, Project etc. - in the SAME language as input)",
           "date": "Date (If present in text, otherwise leave empty)"
         }
       ]

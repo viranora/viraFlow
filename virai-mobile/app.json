@@ -17,14 +17,17 @@
       "bundleIdentifier": "com.semanur.viraflow"
     },
     "android": {
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#2D2926"
       },
       "package": "com.semanur.viraflow",
       "permissions": [
-        "INTERNET"
-      ]
+        "INTERNET",
+        "ACCESS_NETWORK_STATE"
+      ],
+      "targetSdkVersion": 34
     },
     "web": {
       "bundler": "metro",
@@ -39,8 +42,12 @@
     "experiments": {
       "typedRoutes": true
     },
+    "privacy": "public",
+    "description": "AI-powered task management assistant with smart analysis",
     "extra": {
       "sentryDsn": "https://ba4d63635b2579b9a0cdd184edba3d68@o4510721655242752.ingest.de.sentry.io/4510721661272144",
+      "sentryEnvironment": "production",
+      "apiUrl": "https://viraflow.onrender.com/analyze-mixed",
       "router": {},
       "eas": {
         "projectId": "d261fa49-a200-4c85-b4cc-af9bd3863877"

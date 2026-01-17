@@ -28,6 +28,10 @@ export default function SettingsScreen() {
     Linking.openURL('https://treasure-pigeon-e11.notion.site/Vira-Flow-Gizlilik-Politikas-2e7c948b160a80a19d20f44902fb3b91'); 
   };
 
+  const openTerms = () => {
+    Linking.openURL('https://treasure-pigeon-e11.notion.site/Vira-Flow-Terms-of-Service-2ebc948b160a8001a8a3eaf5b92d5fb7');
+  };
+
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
@@ -62,6 +66,14 @@ export default function SettingsScreen() {
             <View style={{flexDirection:'row', alignItems:'center'}}>
               <Ionicons name="lock-closed-outline" size={22} color={COLORS.text} />
               <Text style={styles.menuText}>Privacy Policy</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color={COLORS.accent} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.menuItem} onPress={openTerms}>
+            <View style={{flexDirection:'row', alignItems:'center'}}>
+              <Ionicons name="document-text-outline" size={22} color={COLORS.text} />
+              <Text style={styles.menuText}>Terms of Service</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={COLORS.accent} />
           </TouchableOpacity>

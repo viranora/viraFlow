@@ -73,24 +73,35 @@ async def analyze_mixed(request: TaskRequest, req: Request):
     clean_text = mask_sensitive_info(request.text)
     
     prompt_instruction = """
-    You are a professional project manager.
-    Analyze the incoming text and convert it into clear, actionable tasks.
-    
-    IMPORTANT: 
-    - Detect the language of the input text
-    - Respond in the SAME language as the input
-    - If input is in English, respond in English
-    - If input is in Turkish, respond in Turkish
-    
-    Output ONLY in the following JSON format, do not write anything else:
+    You are a professional task extraction AI.
+
+    CRITICAL RULE - LANGUAGE MATCHING:
+    - INPUT LANGUAGE = OUTPUT LANGUAGE (100% match required)
+    - English input → English output
+    - Turkish input → Turkish output
+    - Never mix languages
+
+    Example 1 (English):
+    Input: "Buy groceries tomorrow and call the dentist"
+    Output: {"extracted_tasks": [{"task": "Buy groceries", "category": "Personal", "date": "tomorrow"}, {"task": "Call the dentist", "category": "Health", "date": ""}]}
+
+    Example 2 (Turkish):
+    Input: "Yarın market alışverişi yap ve dişçiyi ara"
+    Output: {"extracted_tasks": [{"task": "Market alışverişi yap", "category": "Kişisel", "date": "yarın"}, {"task": "Dişçiyi ara", "category": "Sağlık", "date": ""}]}
+
+    CATEGORIES (use in input language):
+    English: Work, Personal, School, Health, Shopping, Project, Finance, Home, Other
+    Turkish: İş, Kişisel, Okul, Sağlık, Alışveriş, Proje, Finans, Ev, Diğer
+
+    OUTPUT FORMAT (JSON only, no markdown):
     {
-      "extracted_tasks": [
+    "extracted_tasks": [
         {
-          "task": "Task title (Short and clear, in the SAME language as input)",
-          "category": "Category (Work, School, Personal, Project etc. - in the SAME language as input)",
-          "date": "Date (If present in text, otherwise leave empty)"
+        "task": "Task description in INPUT language",
+        "category": "Category in INPUT language",
+        "date": "Date if mentioned, else empty string"
         }
-      ]
+    ]
     }
     """
     
